@@ -28,7 +28,7 @@ async def route(r):
 async def main():
     async with async_playwright() as p:
         b=await p.chromium.launch(args=['--use-gl=swiftshader','--enable-webgl','--ignore-gpu-blocklist'])
-        c=await b.new_context(viewport={'width':390,'height':844})
+        c=await b.new_context(viewport={'width':390,'height':844},locale='ja-JP')
         pg=await c.new_page(); logs=[]
         pg.on('console',lambda m: logs.append(m.type+': '+m.text)); pg.on('pageerror',lambda e: logs.append('ERR '+str(e)))
         await c.route('**/*',route)
@@ -69,6 +69,6 @@ async def main():
         errs=[l for l in logs if l.startswith('ERR')]
         for l in errs: print(l)
         ex('ページのエラーがない',not errs)
-        await b.close()
+        await c.unroute_all(behavior='ignoreErrors'); await b.close()
 asyncio.run(main())
 print('すべて合格' if not fail else '失敗 '+str(fail)+' 件'); sys.exit(1 if fail else 0)
